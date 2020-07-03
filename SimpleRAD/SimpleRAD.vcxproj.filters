@@ -21,12 +21,21 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="core\Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="utils\debug.h">
+    <ClInclude Include="core\constants\defs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\shader.h">
+    <ClInclude Include="core\constants\VertexData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\assets\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

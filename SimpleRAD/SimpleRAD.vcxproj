@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Kahl\source\glad\include;C:\Users\Kahl\source\glfw-3.2.1\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Kahl\source\GLM_9_8_5;C:\Users\Kahl\source\glad\include;C:\Users\Kahl\source\glfw-3.2.1\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Kahl\source\glfw-3.2.1\libraries;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,12 +147,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="core\Engine.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="utils\debug.h" />
-    <ClInclude Include="utils\shader.h" />
+    <ClInclude Include="core\assets\Shader.h" />
+    <ClInclude Include="core\constants\defs.h" />
+    <ClInclude Include="core\constants\VertexData.h" />
+    <ClInclude Include="core\Engine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
