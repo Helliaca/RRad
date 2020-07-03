@@ -150,12 +150,14 @@
     <ClCompile Include="core\Engine.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="core\assets\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\assets\Shader.h" />
     <ClInclude Include="core\constants\defs.h" />
     <ClInclude Include="core\constants\VertexData.h" />
     <ClInclude Include="core\Engine.h" />
+    <ClInclude Include="core\assets\Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

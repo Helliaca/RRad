@@ -1,5 +1,9 @@
 #include "Engine.h"
 
+#include "assets/Texture.h"
+
+#include "assets/Shader.h"
+
 Engine::Engine() {
 
 }
@@ -43,6 +47,40 @@ GLFWwindow* createWindow() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     return window;
+}
+
+void testeroo(GLFWwindow* window, unsigned int VAO) {
+    Texture* tex = new Texture();
+    tex->clear();
+
+    Shader* shad = new Shader("shaders/store.vs", "shaders/store.fs");
+    shad->use();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //Settings
+    glViewport(0, 0, 64, 64);
+    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+
+    //Texture/Map
+    tex->use(shad->ID, "tex2D", 0);
+    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGB8);
+
+    //Render
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    glfwSwapBuffers(window);
+
+    //Revert Settings
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+
+    glViewport(0, 0, 800, 600);
 }
 
 void Engine::run() {
@@ -91,22 +129,6 @@ void Engine::run() {
     glEnableVertexAttribArray(2);
 
 
-    // load and create a texture 
-    // -------------------------
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-
-
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -116,13 +138,11 @@ void Engine::run() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // bind Texture
-        glBindTexture(GL_TEXTURE_2D, texture);
-
         // render container
-        ourShader.use();
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        testeroo(window, VAO);
+        //ourShader.use();
+        //glBindVertexArray(VAO);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
