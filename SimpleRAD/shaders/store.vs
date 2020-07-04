@@ -9,7 +9,8 @@ out vec2 TexCoord;
 
 void main()
 {
-	gl_Position = vec4(aPos, 1.0);
+	vec2 clipspace = aTexCoord * 2.0 - 1.0; // Go from [0,1] to [-1,1]
+	gl_Position = vec4(clipspace.x, clipspace.y, 0.0, 1.0);
 	ourColor = aColor;
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }

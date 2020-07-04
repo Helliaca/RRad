@@ -49,8 +49,7 @@ GLFWwindow* createWindow() {
     return window;
 }
 
-void testeroo(GLFWwindow* window, unsigned int VAO) {
-    Texture* tex = new Texture();
+void testeroo(GLFWwindow* window, unsigned int VAO, Texture* tex) {
     tex->clear();
 
     Shader* shad = new Shader("shaders/store.vs", "shaders/store.fs");
@@ -61,13 +60,13 @@ void testeroo(GLFWwindow* window, unsigned int VAO) {
     //Settings
     glViewport(0, 0, 64, 64);
     //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    //glDisable(GL_CULL_FACE);
+    //glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_BLEND);
 
     //Texture/Map
     tex->use(shad->ID, "tex2D", 0);
-    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGB8);
+    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
     //Render
     glBindVertexArray(VAO);
@@ -76,10 +75,9 @@ void testeroo(GLFWwindow* window, unsigned int VAO) {
     glfwSwapBuffers(window);
 
     //Revert Settings
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-
+    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_BLEND);
     glViewport(0, 0, 800, 600);
 }
 
@@ -128,6 +126,9 @@ void Engine::run() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    Texture* tex = new Texture();
+    testeroo(window, VAO, tex);
+
 
     // render loop
     // -----------
@@ -139,10 +140,14 @@ void Engine::run() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // render container
-        testeroo(window, VAO);
-        //ourShader.use();
-        //glBindVertexArray(VAO);
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        ourShader.use();
+
+        //tex->use(ourShader.ID, "tex2D", 0);
+        //glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_READ_ONLY, GL_RGBA8);
+        glBindTexture(GL_TEXTURE_2D, tex->textureID);
+
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

@@ -13,5 +13,5 @@ void main()
 	//FragColor = texture(texture1, TexCoord);
 
 	// store ourColor into texture1 at position TexCoord
-	imageStore(tex2D, ivec2(TexCoord), vec4(1.0));
+	imageStore(tex2D, ivec2(TexCoord*imageSize(tex2D)), vec4(1.0));
 }

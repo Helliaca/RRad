@@ -159,6 +159,12 @@
     <ClInclude Include="core\Engine.h" />
     <ClInclude Include="core\assets\Texture.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\emit.fs" />
+    <None Include="shaders\emit.vs" />
+    <None Include="shaders\store.fs" />
+    <None Include="shaders\store.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

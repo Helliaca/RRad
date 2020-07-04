@@ -45,4 +45,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\emit.fs" />
+    <None Include="shaders\emit.vs" />
+    <None Include="shaders\store.fs" />
+    <None Include="shaders\store.vs" />
+  </ItemGroup>
 </Project>

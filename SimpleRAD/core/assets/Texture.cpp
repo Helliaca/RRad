@@ -18,7 +18,7 @@ Texture::Texture() {
 	//glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST); //Mipmaps
 	//glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //Texture
 
-	glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGB8, 64, 64); //Specify storage
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 64, 64); //Specify storage
 
 	clear();
 }
@@ -26,7 +26,7 @@ Texture::Texture() {
 void Texture::clear() {
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	const std::vector<GLubyte> texBuffer(3 * 64 * 64, 0); //3 because RGB
+	const std::vector<GLubyte> texBuffer(4 * 64 * 64, 0); //3 because RGB
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 64, 64, GL_RGBA, GL_UNSIGNED_BYTE, &texBuffer[0]); //Set colors for lowest mipmap level (all black)
 
