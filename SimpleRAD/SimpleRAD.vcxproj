@@ -162,8 +162,10 @@
   <ItemGroup>
     <None Include="shaders\emit.fs" />
     <None Include="shaders\emit.vs" />
-    <None Include="shaders\store.fs" />
     <None Include="shaders\store.vs" />
+    <None Include="shaders\store_nrm.fs" />
+    <None Include="shaders\store_vis.fs" />
+    <None Include="shaders\store_worldpos.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
