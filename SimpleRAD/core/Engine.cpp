@@ -153,6 +153,31 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
     glViewport(0, 0, 800, 600);
 }
 
+bool renderMode_texture = false;
+std::string currentTexture = "ligTex1";
+
+void Engine::console()
+{
+    std::string in;
+    while (true)
+    {
+        std::getline(std::cin, in);
+        std::istringstream iss(in);
+        std::vector<std::string> input(std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>());
+
+        settingMutex.lock();
+
+        if (input.size() == 1) {
+            if (input[0] == "tex" || input[0] == "obj" || input[0] == "mode") renderMode_texture = !renderMode_texture;
+        }
+        else if (input.size() == 2) {
+            if (input[0] == "tex") currentTexture = input[1];
+        }
+
+        settingMutex.unlock();
+    }
+}
+
 void Engine::run() {
     loadGlfw();
     GLFWwindow* window = createWindow();
@@ -160,8 +185,9 @@ void Engine::run() {
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader ourShader("shaders/showTexture.vs", "shaders/showTexture.fs");
-    //Shader ourShader("shaders/emit.vs", "shaders/emit.fs");
+    Shader* texShader = new Shader("shaders/showTexture.vs", "shaders/showTexture.fs");
+    Shader* objShader = new Shader("shaders/emit.vs", "shaders/emit.fs");
+    Shader* currentShader = objShader;
 
     //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -204,11 +230,16 @@ void Engine::run() {
     make_ligTex(window, VAO, ligTex0, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex1, true);
     make_ligTex(window, VAO, ligTex1, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex0, false);
 
+    consoleThread = std::thread(&Engine::console, this);
+    consoleThread.detach();
+
 
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        settingMutex.lock();
+
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -216,12 +247,24 @@ void Engine::run() {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         // render container
-        ourShader.use();
+        if(renderMode_texture) {
+            currentShader = texShader;
+        }
+        else {
+            currentShader = objShader;
+        }
 
-        ligTex1->use(ourShader.ID, "tex2D", 0);
+        currentShader->use();
+
+        if(currentTexture=="ligTex1") ligTex1->use(currentShader->ID, "tex2D", 0);
+        else if (currentTexture == "posTex") posTex->use(currentShader->ID, "tex2D", 0);
+        else if (currentTexture == "nrmTex") nrmTex->use(currentShader->ID, "tex2D", 0);
+        else ligTex0->use(currentShader->ID, "tex2D", 0);
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, (sizeof(indices) / sizeof(*indices)), GL_UNSIGNED_INT, 0);
+
+        settingMutex.unlock();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
