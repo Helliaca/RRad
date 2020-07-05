@@ -9,5 +9,7 @@ layout(RGBA8) uniform image2D tex2D;
 
 void main()
 {
+	
+
 	imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(fsPos, 1.0));
 }

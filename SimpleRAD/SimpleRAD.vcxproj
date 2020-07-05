@@ -162,6 +162,10 @@
   <ItemGroup>
     <None Include="shaders\emit.fs" />
     <None Include="shaders\emit.vs" />
+    <None Include="shaders\make_lightmap.fs" />
+    <None Include="shaders\make_lightmap.vs" />
+    <None Include="shaders\showTexture.fs" />
+    <None Include="shaders\showTexture.vs" />
     <None Include="shaders\store.vs" />
     <None Include="shaders\store_nrm.fs" />
     <None Include="shaders\store_vis.fs" />

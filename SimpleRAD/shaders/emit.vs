@@ -10,7 +10,29 @@ out vec2 TexCoord;
 
 void main()
 {
-	gl_Position = vec4(aPos, 1.0);
+	mat4 m = mat4(
+		1.0, 0.0, 0.0, 0.0,
+		0.0, 1.0, 0.0, 0.0,
+		0.0, 0.0, 1.0, 0.0,
+		0.0, 0.0, 0.0, 1.0
+	);
+
+	mat4 v = mat4(
+		1.0, 0.0, 0.0, 0.0,
+		0.0, 1.0, 0.0, 0.0,
+		0.0, 0.0,-1.0, 0.0,
+		0.0, 0.0,-2.0, 1.0
+	);
+
+	// Taken from Übung 3:
+	mat4 p = mat4(
+		3.7, 0.0, 0.0, 0.0,
+		0.0, 6.6, 0.0, 0.0,
+		0.0, 0.0,-1.6,-6.6,
+		0.0, 0.0,-1.0, 0.0
+	);
+
+	gl_Position = p * v * m * vec4(aPos, 1.0);
 	ourColor = aColor;
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }

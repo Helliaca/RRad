@@ -49,7 +49,7 @@ GLFWwindow* createWindow() {
     return window;
 }
 
-void testeroo(GLFWwindow* window, unsigned int VAO, Texture* tex) {
+void make_posTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
     tex->clear();
 
     Shader* shad = new Shader("shaders/store.vs", "shaders/store_worldpos.fs");
@@ -58,7 +58,7 @@ void testeroo(GLFWwindow* window, unsigned int VAO, Texture* tex) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Settings
-    glViewport(0, 0, 64, 64);
+    glViewport(0, 0, 128, 128);
     //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     //glDisable(GL_CULL_FACE);
     //glDisable(GL_DEPTH_TEST);
@@ -70,7 +70,75 @@ void testeroo(GLFWwindow* window, unsigned int VAO, Texture* tex) {
 
     //Render
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+
+    glfwSwapBuffers(window);
+
+    //Revert Settings
+    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_BLEND);
+    glViewport(0, 0, 800, 600);
+}
+
+void make_nrmTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
+    tex->clear();
+
+    Shader* shad = new Shader("shaders/store.vs", "shaders/store_nrm.fs");
+    shad->use();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //Settings
+    glViewport(0, 0, 128, 128);
+    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    //glDisable(GL_CULL_FACE);
+    //glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_BLEND);
+
+    //Texture/Map
+    tex->use(shad->ID, "tex2D", 0);
+    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+    //Render
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+
+    glfwSwapBuffers(window);
+
+    //Revert Settings
+    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_BLEND);
+    glViewport(0, 0, 800, 600);
+}
+
+void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, Texture* posTex, Texture* nrmTex, Texture* old_ligTex, bool init) {
+    tex->clear();
+
+    Shader* shad = new Shader("shaders/make_lightmap.vs", "shaders/make_lightmap.fs");
+    shad->use();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //Settings
+    glViewport(0, 0, 128, 128);
+    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    //glDisable(GL_CULL_FACE);
+    //glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_BLEND);
+
+    //Texture/Map
+    shad->setBool("init", init);
+    tex->use(shad->ID, "tex2D", 0);
+    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+    posTex->use(shad->ID, "posTex", 1);
+    nrmTex->use(shad->ID, "nrmTex", 2);
+    old_ligTex->use(shad->ID, "ligTex", 3);
+
+    //Render
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);
 
@@ -88,21 +156,59 @@ void Engine::run() {
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader ourShader("shaders/emit.vs", "shaders/emit.fs");
+    Shader ourShader("shaders/showTexture.vs", "shaders/showTexture.fs");
+    //Shader ourShader("shaders/emit.vs", "shaders/emit.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
         // positions          // colors           // normal vector     // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f  // top left 
+        // Left Wall
+        -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.0f, 0.0f, // 0   i:0
+        -1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.1f, 0.0f, // 4   i:1
+        -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.1f, 0.1f, // 7   i:2
+        -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.0f, 0.1f, // 3   i:3
+        // Right Wall
+         1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.0f, 0.1f, // 1   i:4
+         1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.1f, 0.1f, // 5   i:5
+         1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.1f, 0.2f, // 6   i:6
+         1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.0f, 0.2f, // 2   i:7
+         // Bottom Wall
+        -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.0f, 0.2f, // 0   i:8
+         1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.1f, 0.2f, // 1   i:9
+         1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.1f, 0.3f, // 5   i:10
+        -1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.0f, 0.3f, // 4   i:11
+        // Top Wall
+        -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.0f, 0.3f, // 3   i:12
+         1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.1f, 0.3f, // 2   i:13
+         1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.1f, 0.4f, // 6   i:14
+        -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.0f, 0.4f, // 7   i:15
+        // Back Wall
+        -1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.0f, 0.4f, // 4   i:16
+         1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.1f, 0.4f, // 5   i:17
+         1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.1f, 0.5f, // 6   i:18
+        -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.0f, 0.5f, // 7   i:19
     };
     unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+        // Left Wall
+        0, 1, 2,
+        0, 2, 3,
+        // Right Wall
+        4, 5, 6,
+        4, 6, 7,
+        // Bottom
+        8, 9, 10,
+        8, 10, 11,
+        // Top
+        12, 13, 14,
+        12, 14, 15,
+        // Back
+        16, 17, 18,
+        16, 18, 19,
     };
+
+    glDisable(GL_CULL_FACE);
+
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -129,8 +235,16 @@ void Engine::run() {
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
     glEnableVertexAttribArray(3);
 
-    Texture* tex = new Texture();
-    testeroo(window, VAO, tex);
+    Texture* posTex = new Texture();
+    make_posTex(window, VAO, posTex, (sizeof(indices) / sizeof(*indices)));
+
+    Texture* nrmTex = new Texture();
+    make_nrmTex(window, VAO, nrmTex, (sizeof(indices) / sizeof(*indices)));
+
+    Texture* ligTex0 = new Texture();
+    Texture* ligTex1 = new Texture();
+    make_ligTex(window, VAO, ligTex0, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex1, true);
+    make_ligTex(window, VAO, ligTex1, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex0, false);
 
 
     // render loop
@@ -147,10 +261,10 @@ void Engine::run() {
 
         //tex->use(ourShader.ID, "tex2D", 0);
         //glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_READ_ONLY, GL_RGBA8);
-        glBindTexture(GL_TEXTURE_2D, tex->textureID);
+        glBindTexture(GL_TEXTURE_2D, ligTex1->textureID);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, (sizeof(indices) / sizeof(*indices)), GL_UNSIGNED_INT, 0);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

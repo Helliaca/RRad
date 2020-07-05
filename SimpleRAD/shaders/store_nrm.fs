@@ -9,5 +9,8 @@ layout(RGBA8) uniform image2D tex2D;
 
 void main()
 {
-	imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(fsNormal, 1.0));
+	vec3 n = fsNormal;
+	n = normalize(fsNormal);
+	n = (n + 1.0) * 0.5f; //[-1, 1] -> [0, 1]
+	imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(n, 1.0));
 }

@@ -52,5 +52,9 @@
     <None Include="shaders\store_nrm.fs" />
     <None Include="shaders\store_vis.fs" />
     <None Include="shaders\store_worldpos.fs" />
+    <None Include="shaders\showTexture.fs" />
+    <None Include="shaders\showTexture.vs" />
+    <None Include="shaders\make_lightmap.fs" />
+    <None Include="shaders\make_lightmap.vs" />
   </ItemGroup>
 </Project>
