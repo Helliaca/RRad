@@ -32,9 +32,6 @@
     <ClInclude Include="core\constants\defs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\constants\VertexData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="core\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>

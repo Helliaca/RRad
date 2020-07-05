@@ -5,6 +5,7 @@ out vec4 FragColor;
 in vec3 fsPos;
 in vec3 fsNormal;
 in vec2 fsUV;
+in vec3 fsColor;
 
 layout(RGBA8) uniform image2D tex2D;
 
@@ -12,14 +13,14 @@ uniform sampler2D posTex;
 uniform sampler2D nrmTex;
 uniform sampler2D ligTex;
 
-uniform int init;
+uniform int pass;
 
 #define PI 3.14159265359f
 
 void main()
 {
-	if(init>0) {
-		if(fsPos.y>0.99) {
+	if(pass<=0) {
+		if(fsPos.y>0.999) {
 			imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(1.0));
 		}
 	}
@@ -27,7 +28,8 @@ void main()
 		float dim = imageSize(tex2D).x;
 		vec2 self = fsUV;
 
-		vec3 col = texture(ligTex, self).rgb;
+		vec3 col = vec3(0.0); //texture(ligTex, self).rgb;
+		if(fsPos.y>0.999) col = vec3(1.0);
 
 		for(int x=0; x<dim; x++) {
 			for(int y=0; y<dim; y++) {
@@ -50,8 +52,7 @@ void main()
 
 					vec3 source = texture(ligTex, other).rgb;
 
-					col += source * ref * view_factor;
-					//col = vec3(view_factor);
+					col += source * fsColor * ref * view_factor;
 				}
 			}
 		}

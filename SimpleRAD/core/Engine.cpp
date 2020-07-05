@@ -40,7 +40,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 GLFWwindow* createWindow() {
-    GLFWwindow* window = glfwCreateWindow(800, 600, "RRAD", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIN_SIZE_X, WIN_SIZE_Y, "RRAD", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -82,7 +82,7 @@ void make_posTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
     //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
 }
 
 void make_nrmTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
@@ -114,10 +114,10 @@ void make_nrmTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
     //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
 }
 
-void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, Texture* posTex, Texture* nrmTex, Texture* old_ligTex, bool init) {
+void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, Texture* posTex, Texture* nrmTex, Texture* old_ligTex, int pass) {
     tex->clear();
 
     Shader* shad = new Shader("shaders/make_lightmap.vs", "shaders/make_lightmap.fs");
@@ -133,7 +133,7 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
     //glDisable(GL_BLEND);
 
     //Texture/Map
-    shad->setBool("init", init);
+    shad->setInt("pass", pass);
     tex->use(shad->ID, "tex2D", 0);
     glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
     posTex->use(shad->ID, "posTex", 1);
@@ -150,11 +150,11 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
     //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
 }
 
 bool renderMode_texture = false;
-std::string currentTexture = "ligTex1";
+std::string currentTexture = "ligTex0";
 
 void Engine::console()
 {
@@ -227,8 +227,9 @@ void Engine::run() {
 
     Texture* ligTex0 = new Texture();
     Texture* ligTex1 = new Texture();
-    make_ligTex(window, VAO, ligTex0, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex1, true);
-    make_ligTex(window, VAO, ligTex1, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex0, false);
+    make_ligTex(window, VAO, ligTex0, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex1, 0);
+    make_ligTex(window, VAO, ligTex1, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex0, 1);
+    make_ligTex(window, VAO, ligTex0, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex1, 2);
 
     consoleThread = std::thread(&Engine::console, this);
     consoleThread.detach();

@@ -157,7 +157,6 @@
     <ClInclude Include="core\assets\Shader.h" />
     <ClInclude Include="core\const.h" />
     <ClInclude Include="core\constants\defs.h" />
-    <ClInclude Include="core\constants\VertexData.h" />
     <ClInclude Include="core\Engine.h" />
     <ClInclude Include="core\assets\Texture.h" />
   </ItemGroup>
