@@ -44,6 +44,12 @@
     <ClInclude Include="core\assets\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\assets\Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\const.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\emit.fs" />

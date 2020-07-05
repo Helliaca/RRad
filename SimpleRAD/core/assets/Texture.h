@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 
+#include "../const.h"
+
 class Texture
 {
 public:

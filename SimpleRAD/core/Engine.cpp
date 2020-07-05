@@ -4,6 +4,10 @@
 
 #include "assets/Shader.h"
 
+#include "assets/Data.h"
+
+using namespace scene;
+
 Engine::Engine() {
 
 }
@@ -58,10 +62,10 @@ void make_posTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Settings
-    glViewport(0, 0, 128, 128);
+    glViewport(0, 0, MAP_RES, MAP_RES);
     //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     //glDisable(GL_CULL_FACE);
-    //glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     //glDisable(GL_BLEND);
 
     //Texture/Map
@@ -76,7 +80,7 @@ void make_posTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
 
     //Revert Settings
     //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
     glViewport(0, 0, 800, 600);
 }
@@ -90,10 +94,10 @@ void make_nrmTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Settings
-    glViewport(0, 0, 128, 128);
+    glViewport(0, 0, MAP_RES, MAP_RES);
     //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     //glDisable(GL_CULL_FACE);
-    //glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     //glDisable(GL_BLEND);
 
     //Texture/Map
@@ -108,7 +112,7 @@ void make_nrmTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
 
     //Revert Settings
     //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
     glViewport(0, 0, 800, 600);
 }
@@ -122,10 +126,10 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Settings
-    glViewport(0, 0, 128, 128);
+    glViewport(0, 0, MAP_RES, MAP_RES);
     //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     //glDisable(GL_CULL_FACE);
-    //glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     //glDisable(GL_BLEND);
 
     //Texture/Map
@@ -144,7 +148,7 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
 
     //Revert Settings
     //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
     glViewport(0, 0, 800, 600);
 }
@@ -159,55 +163,9 @@ void Engine::run() {
     Shader ourShader("shaders/showTexture.vs", "shaders/showTexture.fs");
     //Shader ourShader("shaders/emit.vs", "shaders/emit.fs");
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices[] = {
-        // positions          // colors           // normal vector     // texture coords
-        // Left Wall
-        -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.0f, 0.0f, // 0   i:0
-        -1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.1f, 0.0f, // 4   i:1
-        -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.1f, 0.1f, // 7   i:2
-        -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   1.0f,  0.0f,  0.0f,   0.0f, 0.1f, // 3   i:3
-        // Right Wall
-         1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.0f, 0.1f, // 1   i:4
-         1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.1f, 0.1f, // 5   i:5
-         1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.1f, 0.2f, // 6   i:6
-         1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,   0.0f, 0.2f, // 2   i:7
-         // Bottom Wall
-        -1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.0f, 0.2f, // 0   i:8
-         1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.1f, 0.2f, // 1   i:9
-         1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.1f, 0.3f, // 5   i:10
-        -1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  1.0f,  0.0f,   0.0f, 0.3f, // 4   i:11
-        // Top Wall
-        -1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.0f, 0.3f, // 3   i:12
-         1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.1f, 0.3f, // 2   i:13
-         1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.1f, 0.4f, // 6   i:14
-        -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f, -1.0f,  0.0f,   0.0f, 0.4f, // 7   i:15
-        // Back Wall
-        -1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.0f, 0.4f, // 4   i:16
-         1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.1f, 0.4f, // 5   i:17
-         1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.1f, 0.5f, // 6   i:18
-        -1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 1.0f,   0.0f,  0.0f, -1.0f,   0.0f, 0.5f, // 7   i:19
-    };
-    unsigned int indices[] = {
-        // Left Wall
-        0, 1, 2,
-        0, 2, 3,
-        // Right Wall
-        4, 5, 6,
-        4, 6, 7,
-        // Bottom
-        8, 9, 10,
-        8, 10, 11,
-        // Top
-        12, 13, 14,
-        12, 14, 15,
-        // Back
-        16, 17, 18,
-        16, 18, 19,
-    };
-
-    glDisable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_BLEND);
 
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -255,13 +213,12 @@ void Engine::run() {
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT);
 
         // render container
         ourShader.use();
 
-        //tex->use(ourShader.ID, "tex2D", 0);
-        //glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_READ_ONLY, GL_RGBA8);
-        glBindTexture(GL_TEXTURE_2D, ligTex1->textureID);
+        ligTex1->use(ourShader.ID, "tex2D", 0);
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, (sizeof(indices) / sizeof(*indices)), GL_UNSIGNED_INT, 0);

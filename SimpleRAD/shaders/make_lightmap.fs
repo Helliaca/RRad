@@ -46,7 +46,7 @@ void main()
 
 					float view_factor = max(0.0, cos_s * cos_o * (1.0f / (PI*r*r)));
 
-					float ref = 0.01f; // reflectivity
+					float ref = 15.0f / (dim*dim); // reflectivity
 
 					vec3 source = texture(ligTex, other).rgb;
 

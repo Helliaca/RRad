@@ -153,7 +153,9 @@
     <ClCompile Include="core\assets\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="core\assets\Data.h" />
     <ClInclude Include="core\assets\Shader.h" />
+    <ClInclude Include="core\const.h" />
     <ClInclude Include="core\constants\defs.h" />
     <ClInclude Include="core\constants\VertexData.h" />
     <ClInclude Include="core\Engine.h" />
