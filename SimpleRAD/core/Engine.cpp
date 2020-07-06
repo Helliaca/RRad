@@ -154,7 +154,9 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
 }
 
 bool renderMode_texture = false;
+bool pass_onnextframe = false;
 std::string currentTexture = "ligTex0";
+int pass_c = 0;
 
 void Engine::console()
 {
@@ -169,6 +171,7 @@ void Engine::console()
 
         if (input.size() == 1) {
             if (input[0] == "tex" || input[0] == "obj" || input[0] == "mode") renderMode_texture = !renderMode_texture;
+            else if (input[0] == "pass") pass_onnextframe = true;
         }
         else if (input.size() == 2) {
             if (input[0] == "tex") currentTexture = input[1];
@@ -233,8 +236,8 @@ void Engine::run() {
     Texture* ligTex0 = new Texture();
     Texture* ligTex1 = new Texture();
     make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 0);
-    make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, ligTex0, 1);
-    make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 2);
+    //make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, ligTex0, 1);
+    //make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 2);
 
     consoleThread = std::thread(&Engine::console, this);
     consoleThread.detach();
@@ -245,6 +248,19 @@ void Engine::run() {
     while (!glfwWindowShouldClose(window))
     {
         settingMutex.lock();
+
+        if (pass_onnextframe) {
+            pass_c++;
+            if (pass_c % 2 != 0) {
+                make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, ligTex0, pass_c);
+                if (currentTexture == "ligTex0") currentTexture = "ligTex1";
+            }
+            else {
+                make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, pass_c);
+                if (currentTexture == "ligTex1") currentTexture = "ligTex0";
+            }
+            pass_onnextframe = false;
+        }
 
         // render
         // ------

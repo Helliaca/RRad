@@ -40,7 +40,7 @@ void main()
 
 				vec3 self_to_other = pos_o - pos_s;
 				float r = length(self_to_other);
-				if(r<0.15) continue;
+				if(r<0.1) continue;
 
 				self_to_other = normalize(self_to_other);
 
@@ -52,7 +52,7 @@ void main()
 
 				float view_factor = max(0.0, cos_s * cos_o * (1.0f / (PI*r*r)));
 
-				float ref = 30.0f / (dim*dim); // reflectivity
+				float ref = 20.0f / (dim*dim); // reflectivity
 
 				vec3 source = texture(ligTex, other).rgb;
 
