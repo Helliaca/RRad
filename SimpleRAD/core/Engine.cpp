@@ -222,19 +222,19 @@ void Engine::run() {
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
     glEnableVertexAttribArray(3);
 
-    //int size = (sizeof(imp->indices) / sizeof(*(imp->indices)));
+    int size = imp->indices.size();
 
     Texture* posTex = new Texture();
-    make_posTex(window, VAO, posTex, (sizeof(indices) / sizeof(*indices)));
+    make_posTex(window, VAO, posTex, size);
 
     Texture* nrmTex = new Texture();
-    make_nrmTex(window, VAO, nrmTex, (sizeof(indices) / sizeof(*indices)));
+    make_nrmTex(window, VAO, nrmTex, size);
 
     Texture* ligTex0 = new Texture();
     Texture* ligTex1 = new Texture();
-    make_ligTex(window, VAO, ligTex0, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex1, 0);
-    make_ligTex(window, VAO, ligTex1, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex0, 1);
-    make_ligTex(window, VAO, ligTex0, (sizeof(indices) / sizeof(*indices)), posTex, nrmTex, ligTex1, 2);
+    make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 0);
+    make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, ligTex0, 1);
+    make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 2);
 
     consoleThread = std::thread(&Engine::console, this);
     consoleThread.detach();
@@ -268,7 +268,7 @@ void Engine::run() {
         else ligTex0->use(currentShader->ID, "tex2D", 0);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, (sizeof(indices) / sizeof(*indices)), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
 
         settingMutex.unlock();
 

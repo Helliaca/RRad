@@ -34,9 +34,13 @@ void main()
 		for(int x=0; x<dim; x++) {
 			for(int y=0; y<dim; y++) {
 				vec2 other = vec2(x, y)/dim;
-				vec3 self_to_other = texture(posTex, other).rgb - texture(posTex, self).rgb;
+
+				vec3 pos_s = 2.0f*(texture(posTex, self).rgb - 0.5);
+				vec3 pos_o = 2.0f*(texture(posTex, other).rgb - 0.5);
+
+				vec3 self_to_other = pos_o - pos_s;
 				float r = length(self_to_other);
-				//if(r<0.15) continue;
+				if(r<0.15) continue;
 
 				self_to_other = normalize(self_to_other);
 
@@ -48,7 +52,7 @@ void main()
 
 				float view_factor = max(0.0, cos_s * cos_o * (1.0f / (PI*r*r)));
 
-				float ref = 15.0f / (dim*dim); // reflectivity
+				float ref = 30.0f / (dim*dim); // reflectivity
 
 				vec3 source = texture(ligTex, other).rgb;
 
