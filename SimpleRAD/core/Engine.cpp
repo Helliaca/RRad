@@ -183,13 +183,16 @@ void Engine::run() {
     GLFWwindow* window = createWindow();
     loadGlad();
 
+    ObjImporter* imp = new ObjImporter();
+    imp->import_from_file("simpelRad.fbx");
+
     // build and compile our shader zprogram
     // ------------------------------------
     Shader* texShader = new Shader("shaders/showTexture.vs", "shaders/showTexture.fs");
     Shader* objShader = new Shader("shaders/emit.vs", "shaders/emit.fs");
     Shader* currentShader = objShader;
 
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
 
@@ -201,10 +204,10 @@ void Engine::run() {
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * imp->vertexData.size(), &imp->vertexData[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * imp->indices.size(), &imp->indices[0], GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
@@ -218,6 +221,8 @@ void Engine::run() {
     // texture coord attribute
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
     glEnableVertexAttribArray(3);
+
+    //int size = (sizeof(imp->indices) / sizeof(*(imp->indices)));
 
     Texture* posTex = new Texture();
     make_posTex(window, VAO, posTex, (sizeof(indices) / sizeof(*indices)));

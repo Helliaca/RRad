@@ -34,26 +34,25 @@ void main()
 		for(int x=0; x<dim; x++) {
 			for(int y=0; y<dim; y++) {
 				vec2 other = vec2(x, y)/dim;
-				if(other!=self) {
-					vec3 self_to_other = texture(posTex, other).rgb - texture(posTex, self).rgb;
-					float r = length(self_to_other);
+				vec3 self_to_other = texture(posTex, other).rgb - texture(posTex, self).rgb;
+				float r = length(self_to_other);
+				//if(r<0.15) continue;
 
-					self_to_other = normalize(self_to_other);
+				self_to_other = normalize(self_to_other);
 
-					vec3 n_s = 2.0*(texture(nrmTex, self).rgb - 0.5f);
-					vec3 n_o = 2.0*(texture(nrmTex, other).rgb - 0.5f);
+				vec3 n_s = 2.0*(texture(nrmTex, self).rgb - 0.5f);
+				vec3 n_o = 2.0*(texture(nrmTex, other).rgb - 0.5f);
 
-					float cos_s = dot(n_s, normalize(self_to_other));
-					float cos_o = dot(n_o, -normalize(self_to_other));
+				float cos_s = dot(n_s, normalize(self_to_other));
+				float cos_o = dot(-n_o, normalize(self_to_other));
 
-					float view_factor = max(0.0, cos_s * cos_o * (1.0f / (PI*r*r)));
+				float view_factor = max(0.0, cos_s * cos_o * (1.0f / (PI*r*r)));
 
-					float ref = 15.0f / (dim*dim); // reflectivity
+				float ref = 15.0f / (dim*dim); // reflectivity
 
-					vec3 source = texture(ligTex, other).rgb;
+				vec3 source = texture(ligTex, other).rgb;
 
-					col += source * fsColor * ref * view_factor;
-				}
+				col += source * fsColor * ref * view_factor;
 			}
 		}
 		imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(col, 1.0));

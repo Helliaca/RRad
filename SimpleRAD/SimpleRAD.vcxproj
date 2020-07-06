@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Kahl\source\GLM_9_8_5;C:\Users\Kahl\source\glad\include;C:\Users\Kahl\source\glfw-3.2.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Kahl\source\glfw-3.2.1\libraries;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Kahl\source\assimp-3.1.1\include;C:\Users\Kahl\source\GLM_9_8_5;C:\Users\Kahl\source\glad\include;C:\Users\Kahl\source\glfw-3.2.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Kahl\source\assimp-3.1.1\libraries;C:\Users\Kahl\source\glfw-3.2.1\libraries;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -96,7 +96,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -151,6 +151,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="core\assets\Texture.cpp" />
+    <ClCompile Include="ObjImporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\assets\Data.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="core\constants\defs.h" />
     <ClInclude Include="core\Engine.h" />
     <ClInclude Include="core\assets\Texture.h" />
+    <ClInclude Include="ObjImporter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\emit.fs" />

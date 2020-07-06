@@ -7,6 +7,8 @@
 #include <mutex>
 #include <thread>
 
+#include "../ObjImporter.h"
+
 class Engine
 {
 private:
