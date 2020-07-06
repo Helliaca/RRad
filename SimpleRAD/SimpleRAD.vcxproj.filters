@@ -65,5 +65,8 @@
     <None Include="shaders\showTexture.vs" />
     <None Include="shaders\make_lightmap.fs" />
     <None Include="shaders\make_lightmap.vs" />
+    <None Include="shaders\emit_phong.fs" />
+    <None Include="assimp.dll" />
+    <None Include="simpelRad.fbx" />
   </ItemGroup>
 </Project>

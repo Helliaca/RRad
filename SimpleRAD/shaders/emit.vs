@@ -1,12 +1,14 @@
 #version 450 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec3 aNormal;
-layout (location = 3) in vec2 aTexCoord;
+layout (location = 0) in vec3 vsPos;
+layout (location = 1) in vec3 vsColor;
+layout (location = 2) in vec3 vsNormal;
+layout (location = 3) in vec2 vsUV;
 
-out vec3 ourColor;
-out vec2 TexCoord;
+out vec3 fsPos;
+out vec3 fsColor;
+out vec3 fsNormal;
+out vec2 fsUV;
 
 void main()
 {
@@ -32,7 +34,9 @@ void main()
 		0.0, 0.0,-1.0, 0.0
 	);
 
-	gl_Position = p * v * m * vec4(aPos, 1.0);
-	ourColor = aColor;
-	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+	gl_Position = p * v * m * vec4(vsPos, 1.0);
+	fsColor = vsColor;
+	fsUV = vsUV;
+	fsPos = vsPos;
+	fsNormal = vsNormal;
 }

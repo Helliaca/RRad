@@ -163,8 +163,10 @@
     <ClInclude Include="ObjImporter.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assimp.dll" />
     <None Include="shaders\emit.fs" />
     <None Include="shaders\emit.vs" />
+    <None Include="shaders\emit_phong.fs" />
     <None Include="shaders\make_lightmap.fs" />
     <None Include="shaders\make_lightmap.vs" />
     <None Include="shaders\showTexture.fs" />
@@ -173,6 +175,7 @@
     <None Include="shaders\store_nrm.fs" />
     <None Include="shaders\store_vis.fs" />
     <None Include="shaders\store_worldpos.fs" />
+    <None Include="simpelRad.fbx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

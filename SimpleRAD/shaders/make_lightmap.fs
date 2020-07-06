@@ -28,7 +28,7 @@ void main()
 		float dim = imageSize(tex2D).x;
 		vec2 self = fsUV;
 
-		vec3 col = vec3(0.0); //texture(ligTex, self).rgb;
+		vec3 col = vec3(0.0);
 		if(fsPos.y>0.999) col = vec3(1.0);
 
 		for(int x=0; x<dim; x++) {
