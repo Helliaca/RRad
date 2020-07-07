@@ -18,26 +18,69 @@ uniform sampler2D ligTex;
 uniform int pass;
 
 #define PI 3.14159265359f
+#define inf 999.0f
+#define shadows true
 
 struct Ray { vec3 o; vec3 dir; };
 
-//bool BBoxIntersect(vec3 boxMin, vec3 boxMax, Ray r) {
-//	vec3 tbot = r.invDir * (boxMin - r.o);
-//	vec3 ttop = r.invDir * (boxMax - r.o);
-//	vec3 tmin = min(ttop, tbot);
-//	vec3 tmax = max(ttop, tbot);
-//	vec2 t = max(tmin.xx, tmin.yz);
-//	float t0 = max(t.x, t.y);
-//	t = min(tmax.xx, tmax.yz);
-//	float t1 = min(t.x, t.y);
-//
-//	//float dist = 
-//
-//	return t1 > max(t0, 0.0);// && t0>0.1f;
-//	//return hit;
-//}
+float ray_cone(Ray r, float cosa, float height, vec3 tipPos) {
+	vec3 axis = vec3(0, -1, 0);
+	vec3 co = r.o - tipPos;
 
-bool ray_sphere(Ray r, vec3 spos, float sr, out float dist) {
+    float a = dot(r.dir,axis)*dot(r.dir,axis) - cosa*cosa;
+    float b = 2. * (dot(r.dir,axis)*dot(co,axis) - dot(r.dir,co)*cosa*cosa);
+    float c = dot(co,axis)*dot(co,axis) - dot(co,co)*cosa*cosa;
+
+    float det = b*b - 4.*a*c;
+    if (det < 0.) return inf;
+
+    det = sqrt(det);
+    float t1 = (-b - det) / (2. * a);
+    float t2 = (-b + det) / (2. * a);
+
+    // This is a bit messy; there ought to be a more elegant solution.
+    float t = t1;
+    if (t < 0. || t2 > 0. && t2 < t) t = t2;
+    if (t < 0.) return inf;
+
+    vec3 cp = r.o + t*r.dir - tipPos;
+    float h = dot(cp, axis);
+    if (h < 0. || h > height) return inf;
+
+	vec3 hitPos = r.o + r.dir * t;
+	if(distance(hitPos, r.o)<0.05) return inf; // cone requires special treatment -_-
+    return distance(hitPos, r.o);
+}
+
+float ray_cube(Ray r, vec3 boxPos, float scale, float yAngle) {
+	mat3 to_AABB = inverse(mat3(
+		cos(yAngle), 0, -sin(yAngle),
+		0, 1, 0,
+		sin(yAngle), 0, cos(yAngle)
+	));
+	
+	vec3 rayOrigin = to_AABB*(r.o-boxPos);
+	vec3 rayDir = to_AABB*r.dir;
+
+	vec3 boxMin = vec3(-1.0)*scale;
+	vec3 boxMax = vec3(1.0)*scale;
+
+	vec3 tMin = (boxMin - rayOrigin) / rayDir;
+    vec3 tMax = (boxMax - rayOrigin) / rayDir;
+    vec3 t1 = min(tMin, tMax);
+    vec3 t2 = max(tMin, tMax);
+    float tNear = max(max(t1.x, t1.y), t1.z);
+    float tFar = min(min(t2.x, t2.y), t2.z);
+
+    if(tNear >= tFar) return inf;
+
+	vec3 hitpos = rayOrigin + rayDir * tNear;
+
+	if(tNear<-0.001) return inf; // not using 0 because the ground is slightly inside the big cube, causing unfortunate bright seams around it
+	return distance(hitpos, rayOrigin);
+}
+
+float ray_sphere(Ray r, vec3 spos, float sr) {
     float a = dot(r.dir, r.dir);
     vec3 so_ro = r.o - spos;
     float b = 2.0 * dot(r.dir, so_ro);
@@ -45,46 +88,45 @@ bool ray_sphere(Ray r, vec3 spos, float sr, out float dist) {
     
     float disr = b*b - 4.0*a*c; //discriminant
     
-    // Doesn't hit
-    if (disr < 0.0) {
-        return false;
-    }
-    // hits
-    vec3 hitpos = r.o + r.dir*(-b - sqrt(disr))/(2.0*a);
-	dist = distance(r.o, hitpos);
-    return true;
+    if (disr < 0.0) return inf;
+
+	float t = (-b - sqrt(disr))/(2.0*a);
+	if(t<=0) return inf;
+
+    vec3 hitpos = r.o + r.dir*t;
+	float dist = distance(r.o, hitpos);
+
+    return dist;
 }
 
-bool things(vec3 self, vec3 other) {
-	vec3 s_c = vec3(0.57837, 0.45849, 0.45161);
-	float s_r = 0.2974565;
-
+bool occluded(vec3 self, vec3 other) {
+	float dist = inf;
 	vec3 dir = normalize(other-self);
 	Ray r = Ray(self, dir);
 
-	float dist;
-	bool h = ray_sphere(r, s_c, s_r, dist);
+	// Sphere
+	vec3 s_c = vec3(0.57837, 0.45849, 0.45161);
+	float s_r = 0.2974565;
+	dist = min(dist, ray_sphere(r, s_c, s_r));
 
-	return h && dist>0.1;
+	// Big Cube
+	vec3 center = vec3(-0.1454, -0.5300, -0.2920);
+	float scale = 0.4704405;
+	float yAngle = 0.610865f;
+	dist = min(dist, ray_cube(r, center, scale, yAngle));
 
+	center = vec3(-0.26327, 0.09585, -0.33665);
+	scale = 0.1701705;
+	yAngle = -0.279253;
+	dist = min(dist, ray_cube(r, center, scale, yAngle));
 
-	//vec3 center = vec3(0.0f, 0.5f, 0.0f);//vec3(-0.1454, -0.5300, -0.2920);
-	//float scale = 0.1f;
-	//float yAngle = 0.0;//-0.610865f;
-	//
-	//mat3 to_AABB = inverse(mat3(
-	//	cos(yAngle), 0, -sin(yAngle),
-	//	0, 1, 0,
-	//	sin(yAngle), 0, cos(yAngle)
-	//));
-	//
-	//Ray r;
-	//r.o = self - center;
-	//r.dir = normalize(other-self);
-	//r.dir = to_AABB * r.dir;
-	//r.invDir = -r.dir;
-	//
-	//return BBoxIntersect(vec3(-1.0)*scale, vec3(1.0)*scale, r);
+	// cone
+	vec3 cone_tip = vec3(0.67992, -0.54876, -0.52052);
+	float height = 0.45124;
+	float cosa = 0.89879404629;
+	dist = min(dist, ray_cone(r, cosa, height, cone_tip));
+
+	return dist < inf && dist < distance(self, other);
 }
 
 void main()
@@ -136,11 +178,7 @@ void main()
 
 				if(source.a<1.0) continue;
 
-				//if(things(pos_s, pos_o)
-					//&& fract(pos_o.x) > 0.01
-					//&& fract(pos_o.y) > 0.01
-					//&& fract(pos_o.z) > 0.01
-				//) col = vec3(other.x, other.y, 0.0);
+				if(shadows && occluded(pos_s, pos_o)) continue;
 
 				col += source.rgb * fsColor * ref * view_factor;
 			}
@@ -148,8 +186,7 @@ void main()
 
 		//col = vec3(0.0);
 		//vec3 pos_s = 2.0f*(texture(posTex, self).rgb - 0.5);
-		//if(things(vec3(0,0,-2.5), pos_s)) col = vec3(1.0f);
-		//col = vec3(fsA);
+		//if(occluded(vec3(0,0,-2.5), pos_s)) col = vec3(1.0f);
 
 		imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(col, 1.0));
 	}
