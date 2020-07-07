@@ -68,5 +68,6 @@
     <None Include="shaders\emit_phong.fs" />
     <None Include="assimp.dll" />
     <None Include="simpelRad.fbx" />
+    <None Include="shaders\store_arf.fs" />
   </ItemGroup>
 </Project>

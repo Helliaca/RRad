@@ -19,7 +19,7 @@ void main()
   	
 	// Diffuse
 	vec3 lightDir = normalize(lightPos - fsPos);
-	float diff = max(dot(-fsNormal, lightDir), 0.0);
+	float diff = max(dot(fsNormal, lightDir), 0.0);
 	vec3 diffuse = diff * lightColor * 1.0f;
 
 	// Attenuation

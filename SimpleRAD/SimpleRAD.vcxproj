@@ -172,6 +172,7 @@
     <None Include="shaders\showTexture.fs" />
     <None Include="shaders\showTexture.vs" />
     <None Include="shaders\store.vs" />
+    <None Include="shaders\store_arf.fs" />
     <None Include="shaders\store_nrm.fs" />
     <None Include="shaders\store_vis.fs" />
     <None Include="shaders\store_worldpos.fs" />

@@ -117,7 +117,39 @@ void make_nrmTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
     glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
 }
 
-void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, Texture* posTex, Texture* nrmTex, Texture* old_ligTex, int pass) {
+void make_arfTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
+    tex->clear();
+
+    Shader* shad = new Shader("shaders/store.vs", "shaders/store_arf.fs");
+    shad->use();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //Settings
+    glViewport(0, 0, MAP_RES, MAP_RES);
+    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    //glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_BLEND);
+
+    //Texture/Map
+    tex->use(shad->ID, "tex2D", 0);
+    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+    //Render
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+
+    glfwSwapBuffers(window);
+
+    //Revert Settings
+    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_BLEND);
+    glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
+}
+
+void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, Texture* posTex, Texture* nrmTex, Texture* arfTex, Texture* old_ligTex, int pass) {
     tex->clear();
 
     Shader* shad = new Shader("shaders/make_lightmap.vs", "shaders/make_lightmap.fs");
@@ -138,7 +170,8 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
     glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
     posTex->use(shad->ID, "posTex", 1);
     nrmTex->use(shad->ID, "nrmTex", 2);
-    old_ligTex->use(shad->ID, "ligTex", 3);
+    arfTex->use(shad->ID, "arfTex", 3);
+    old_ligTex->use(shad->ID, "ligTex", 4);
 
     //Render
     glBindVertexArray(VAO);
@@ -199,6 +232,7 @@ void Engine::run() {
     Shader* currentShader = objShader;
 
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
 
@@ -216,17 +250,20 @@ void Engine::run() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * imp->indices.size(), &imp->indices[0], GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // nrm attribute
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
     // texture coord attribute
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(9 * sizeof(float)));
     glEnableVertexAttribArray(3);
+    // area factor attribute
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(11 * sizeof(float)));
+    glEnableVertexAttribArray(4);
 
     int size = imp->indices.size();
 
@@ -236,9 +273,13 @@ void Engine::run() {
     Texture* nrmTex = new Texture();
     make_nrmTex(window, VAO, nrmTex, size);
 
+    Texture* arfTex = new Texture();
+    make_arfTex(window, VAO, arfTex, size);
+
+
     Texture* ligTex0 = new Texture();
     Texture* ligTex1 = new Texture();
-    make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 0);
+    make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, arfTex, ligTex1, 0);
     //make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, ligTex0, 1);
     //make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 2);
 
@@ -255,11 +296,11 @@ void Engine::run() {
         if (pass_onnextframe) {
             pass_c++;
             if (pass_c % 2 != 0) {
-                make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, ligTex0, pass_c);
+                make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, arfTex, ligTex0, pass_c);
                 if (currentTexture == "ligTex0") currentTexture = "ligTex1";
             }
             else {
-                make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, pass_c);
+                make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, arfTex, ligTex1, pass_c);
                 if (currentTexture == "ligTex1") currentTexture = "ligTex0";
             }
             pass_onnextframe = false;
@@ -287,6 +328,7 @@ void Engine::run() {
         if(currentTexture=="ligTex1") ligTex1->use(currentShader->ID, "tex2D", 0);
         else if (currentTexture == "posTex") posTex->use(currentShader->ID, "tex2D", 0);
         else if (currentTexture == "nrmTex") nrmTex->use(currentShader->ID, "tex2D", 0);
+        else if (currentTexture == "arfTex") arfTex->use(currentShader->ID, "tex2D", 0);
         else ligTex0->use(currentShader->ID, "tex2D", 0);
 
         glBindVertexArray(VAO);
