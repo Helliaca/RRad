@@ -330,6 +330,7 @@ void Engine::run() {
         else if (currentTexture == "nrmTex") nrmTex->use(currentShader->ID, "tex2D", 0);
         else if (currentTexture == "arfTex") arfTex->use(currentShader->ID, "tex2D", 0);
         else ligTex0->use(currentShader->ID, "tex2D", 0);
+        
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
