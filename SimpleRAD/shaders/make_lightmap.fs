@@ -3,10 +3,8 @@
 out vec4 FragColor;
 
 in vec3 fsPos;
-in vec3 fsNormal;
 in vec2 fsUV;
 in vec3 fsColor;
-in float fsA;
 
 layout(RGBA8) uniform image2D tex2D;
 
@@ -170,7 +168,7 @@ void main()
 
 				float view_factor = cos_s * cos_o * (1.0f / (PI*r*r));
 
-				float ref = 0.8; // reflectivity
+				float ref = 0.9; // reflectivity
 
 				float fpa = (dim*dim)*texture(arfTex, other).x; // -> fragments per unit area on other
 				vec4 source = texture(ligTex, other);

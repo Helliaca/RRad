@@ -184,6 +184,8 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
     glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
+
+    std::cout << "Pass " << pass << " completed." << std::endl;
 }
 
 bool renderMode_texture = false;

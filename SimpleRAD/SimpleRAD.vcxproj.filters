@@ -32,9 +32,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="core\constants\defs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="core\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
