@@ -191,6 +191,7 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
 bool renderMode_texture = false;
 bool phong = false;
 bool pass_onnextframe = false;
+bool showres = false;
 std::string currentTexture = "ligTex0";
 int pass_c = 0;
 
@@ -209,6 +210,7 @@ void Engine::console()
             if (input[0] == "tex" || input[0] == "obj" || input[0] == "mode") renderMode_texture = !renderMode_texture;
             else if (input[0] == "pass") pass_onnextframe = true;
             else if (input[0] == "phong") phong = !phong;
+            else if (input[0] == "res" || input[0] == "showres") showres = !showres;
         }
         else if (input.size() == 2) {
             if (input[0] == "tex") currentTexture = input[1];
@@ -231,6 +233,7 @@ void Engine::run() {
     Shader* texShader = new Shader("shaders/showTexture.vs", "shaders/showTexture.fs");
     Shader* objShader = new Shader("shaders/emit.vs", "shaders/emit.fs");
     Shader* phgShader = new Shader("shaders/emit.vs", "shaders/emit_phong.fs");
+    Shader* resShader = new Shader("shaders/emit.vs", "shaders/emit_res.fs");
     Shader* currentShader = objShader;
 
     glEnable(GL_CULL_FACE);
@@ -320,6 +323,9 @@ void Engine::run() {
         }
         else if(renderMode_texture) {
             currentShader = texShader;
+        }
+        else if (showres) {
+            currentShader = resShader;
         }
         else {
             currentShader = objShader;

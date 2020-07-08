@@ -10,8 +10,6 @@ out vec3 fsColor;
 out vec3 fsNormal;
 out vec2 fsUV;
 
-in mat4 P;
-
 void main()
 {
 	mat4 m = mat4(
