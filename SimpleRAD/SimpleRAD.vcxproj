@@ -166,6 +166,7 @@
     <None Include="shaders\emit.fs" />
     <None Include="shaders\emit.vs" />
     <None Include="shaders\emit_phong.fs" />
+    <None Include="shaders\emit_res.fs" />
     <None Include="shaders\make_lightmap.fs" />
     <None Include="shaders\make_lightmap.vs" />
     <None Include="shaders\showTexture.fs" />

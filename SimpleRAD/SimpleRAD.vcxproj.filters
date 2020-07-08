@@ -66,5 +66,6 @@
     <None Include="assimp.dll" />
     <None Include="simpelRad.fbx" />
     <None Include="shaders\store_arf.fs" />
+    <None Include="shaders\emit_res.fs" />
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@ void main()
 
 	float dim = textureSize(tex2D, 0).x;
 
-	uv *= dim;
+	uv *= dim*0.5f;
 	uv = mod(uv, 1.0);
 
 	if(uv.x>0.5f ^^ uv.y>0.5f) col = vec3(1.0);
