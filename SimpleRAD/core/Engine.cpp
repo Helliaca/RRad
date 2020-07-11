@@ -1,13 +1,5 @@
 #include "Engine.h"
 
-#include "assets/Texture.h"
-
-#include "assets/Shader.h"
-
-#include "assets/Data.h"
-
-using namespace scene;
-
 Engine::Engine() {
 
 }
@@ -53,20 +45,52 @@ GLFWwindow* createWindow() {
     return window;
 }
 
-void make_posTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
+void Engine::load_world() {
+    ObjImporter* imp = new ObjImporter();
+    imp->import_from_file("simpelRad.fbx");
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * imp->vertexData.size(), &imp->vertexData[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * imp->indices.size(), &imp->indices[0], GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // nrm attribute
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    // texture coord attribute
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(9 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+    // area factor attribute
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(11 * sizeof(float)));
+    glEnableVertexAttribArray(4);
+
+    VAO_size = imp->indices.size();
+}
+
+void Engine::make_Tex(Texture* tex, std::string fragShader) {
     tex->clear();
 
-    Shader* shad = new Shader("shaders/store.vs", "shaders/store_worldpos.fs");
+    Shader* shad = new Shader("shaders/store.vs", fragShader.c_str());
     shad->use();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //Settings
     glViewport(0, 0, MAP_RES, MAP_RES);
-    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    //glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
-    //glDisable(GL_BLEND);
 
     //Texture/Map
     tex->use(shad->ID, "tex2D", 0);
@@ -74,82 +98,16 @@ void make_posTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
 
     //Render
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, VAO_size, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);
 
     //Revert Settings
-    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_BLEND);
     glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
 }
 
-void make_nrmTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
-    tex->clear();
-
-    Shader* shad = new Shader("shaders/store.vs", "shaders/store_nrm.fs");
-    shad->use();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //Settings
-    glViewport(0, 0, MAP_RES, MAP_RES);
-    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    //glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    //glDisable(GL_BLEND);
-
-    //Texture/Map
-    tex->use(shad->ID, "tex2D", 0);
-    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-    //Render
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
-
-    glfwSwapBuffers(window);
-
-    //Revert Settings
-    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_BLEND);
-    glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
-}
-
-void make_arfTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size) {
-    tex->clear();
-
-    Shader* shad = new Shader("shaders/store.vs", "shaders/store_arf.fs");
-    shad->use();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //Settings
-    glViewport(0, 0, MAP_RES, MAP_RES);
-    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    //glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    //glDisable(GL_BLEND);
-
-    //Texture/Map
-    tex->use(shad->ID, "tex2D", 0);
-    glBindImageTexture(0, tex->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-    //Render
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
-
-    glfwSwapBuffers(window);
-
-    //Revert Settings
-    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_BLEND);
-    glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
-}
-
-void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, Texture* posTex, Texture* nrmTex, Texture* arfTex, Texture* old_ligTex, int pass) {
+void Engine::make_ligTex(Texture* tex, Texture* posTex, Texture* nrmTex, Texture* arfTex, Texture* old_ligTex, int pass) {
     tex->clear();
 
     Shader* shad = new Shader("shaders/make_lightmap.vs", "shaders/make_lightmap.fs");
@@ -159,10 +117,7 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
 
     //Settings
     glViewport(0, 0, MAP_RES, MAP_RES);
-    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    //glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
-    //glDisable(GL_BLEND);
 
     //Texture/Map
     shad->setInt("pass", pass);
@@ -175,14 +130,12 @@ void make_ligTex(GLFWwindow* window, unsigned int VAO, Texture* tex, int size, T
 
     //Render
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, VAO_size, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);
 
     //Revert Settings
-    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_BLEND);
     glViewport(0, 0, WIN_SIZE_X, WIN_SIZE_Y);
 
     std::cout << "Pass " << pass << " completed." << std::endl;
@@ -221,103 +174,72 @@ void Engine::console()
 }
 
 void Engine::run() {
+    // Load OpenGL Context
     loadGlfw();
-    GLFWwindow* window = createWindow();
+    window = createWindow();
     loadGlad();
 
-    ObjImporter* imp = new ObjImporter();
-    imp->import_from_file("simpelRad.fbx");
+    // Load models/world
+    load_world();
 
-    // build and compile our shader zprogram
-    // ------------------------------------
+    // Load up display shaders
     Shader* texShader = new Shader("shaders/showTexture.vs", "shaders/showTexture.fs");
     Shader* objShader = new Shader("shaders/emit.vs", "shaders/emit.fs");
     Shader* phgShader = new Shader("shaders/emit.vs", "shaders/emit_phong.fs");
     Shader* resShader = new Shader("shaders/emit.vs", "shaders/emit_res.fs");
     Shader* currentShader = objShader;
 
+    // Set settings
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
 
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * imp->vertexData.size(), &imp->vertexData[0], GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * imp->indices.size(), &imp->indices[0], GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // nrm attribute
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    // texture coord attribute
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(9 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-    // area factor attribute
-    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(11 * sizeof(float)));
-    glEnableVertexAttribArray(4);
-
-    int size = imp->indices.size();
-
+    // Make textures
     Texture* posTex = new Texture();
-    make_posTex(window, VAO, posTex, size);
+    make_Tex(posTex, "shaders/store_pos.fs");
 
     Texture* nrmTex = new Texture();
-    make_nrmTex(window, VAO, nrmTex, size);
+    make_Tex(nrmTex, "shaders/store_nrm.fs");
 
     Texture* arfTex = new Texture();
-    make_arfTex(window, VAO, arfTex, size);
+    make_Tex(arfTex, "shaders/store_arf.fs");
 
-
+    // Make initial lightmap texture
     Texture* ligTex0 = new Texture();
     Texture* ligTex1 = new Texture();
-    make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, arfTex, ligTex1, 0);
-    //make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, ligTex0, 1);
-    //make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, ligTex1, 2);
+    make_ligTex(ligTex0, posTex, nrmTex, arfTex, ligTex1, 0);
 
+    // Detach console
     consoleThread = std::thread(&Engine::console, this);
     consoleThread.detach();
 
 
-    // render loop
-    // -----------
+    // Render loop
     while (!glfwWindowShouldClose(window))
     {
         settingMutex.lock();
 
+        // Run a pass
         if (pass_onnextframe) {
             pass_c++;
             if (pass_c % 2 != 0) {
-                make_ligTex(window, VAO, ligTex1, size, posTex, nrmTex, arfTex, ligTex0, pass_c);
+                make_ligTex(ligTex1, posTex, nrmTex, arfTex, ligTex0, pass_c);
                 if (currentTexture == "ligTex0") currentTexture = "ligTex1";
             }
             else {
-                make_ligTex(window, VAO, ligTex0, size, posTex, nrmTex, arfTex, ligTex1, pass_c);
+                make_ligTex(ligTex0, posTex, nrmTex, arfTex, ligTex1, pass_c);
                 if (currentTexture == "ligTex1") currentTexture = "ligTex0";
             }
             pass_onnextframe = false;
         }
 
-        // render
-        // ------
+        // Clear previous render
         glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        // render container
+        // Set current shader
         if (phong) {
             currentShader = phgShader;
         }
@@ -330,35 +252,32 @@ void Engine::run() {
         else {
             currentShader = objShader;
         }
-
         currentShader->use();
 
+        // Set current texture
         if(currentTexture=="ligTex1") ligTex1->use(currentShader->ID, "tex2D", 0);
         else if (currentTexture == "posTex") posTex->use(currentShader->ID, "tex2D", 0);
         else if (currentTexture == "nrmTex") nrmTex->use(currentShader->ID, "tex2D", 0);
         else if (currentTexture == "arfTex") arfTex->use(currentShader->ID, "tex2D", 0);
         else ligTex0->use(currentShader->ID, "tex2D", 0);
         
-
+        // Draw
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, VAO_size, GL_UNSIGNED_INT, 0);
 
         settingMutex.unlock();
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
+        // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
+    // De-allocate
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
 
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
+    // Exit
     glfwTerminate();
     return;
 }

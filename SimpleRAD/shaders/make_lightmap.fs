@@ -21,6 +21,7 @@ uniform int pass;
 
 struct Ray { vec3 o; vec3 dir; };
 
+// Ray cone intersection - Returns distance to closest point
 float ray_cone(Ray r, float cosa, float height, vec3 tipPos) {
 	vec3 axis = vec3(0, -1, 0);
 	vec3 co = r.o - tipPos;
@@ -36,7 +37,6 @@ float ray_cone(Ray r, float cosa, float height, vec3 tipPos) {
     float t1 = (-b - det) / (2. * a);
     float t2 = (-b + det) / (2. * a);
 
-    // This is a bit messy; there ought to be a more elegant solution.
     float t = t1;
     if (t < 0. || t2 > 0. && t2 < t) t = t2;
     if (t < 0.) return inf;
@@ -50,6 +50,7 @@ float ray_cone(Ray r, float cosa, float height, vec3 tipPos) {
     return distance(hitPos, r.o);
 }
 
+// Ray cube intersection - Returns distance to closest point
 float ray_cube(Ray r, vec3 boxPos, float scale, float yAngle) {
 	mat3 to_AABB = inverse(mat3(
 		cos(yAngle), 0, -sin(yAngle),
@@ -78,6 +79,7 @@ float ray_cube(Ray r, vec3 boxPos, float scale, float yAngle) {
 	return distance(hitpos, rayOrigin);
 }
 
+// Ray sphere intersecion - Returns distance of closest point
 float ray_sphere(Ray r, vec3 spos, float sr) {
     float a = dot(r.dir, r.dir);
     vec3 so_ro = r.o - spos;
@@ -97,6 +99,7 @@ float ray_sphere(Ray r, vec3 spos, float sr) {
     return dist;
 }
 
+// Hard-coded hokus pokus for shadows
 bool occluded(vec3 self, vec3 other) {
 	float dist = inf;
 	vec3 dir = normalize(other-self);
@@ -129,6 +132,7 @@ bool occluded(vec3 self, vec3 other) {
 
 void main()
 {
+	// Initial Pass: Set alpha values of drawn tris to 1.0. If y>0.999 -> emit white light
 	if(pass<=0) {
 		if(fsPos.y>0.999) {
 			imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(1.0));
@@ -137,6 +141,7 @@ void main()
 			imageStore(tex2D, ivec2(fsUV*imageSize(tex2D)), vec4(0.0, 0.0, 0.0, 1.0));
 		}
 	}
+	// Subsequent passes: Only execute if alpha value was set previously
 	else if(texture(ligTex, fsUV).a>=1.0f){
 		float dim = imageSize(tex2D).x;
 		vec2 self = fsUV;
@@ -144,44 +149,53 @@ void main()
 		vec3 col = vec3(0.0);
 		if(fsPos.y>0.999) col = vec3(1.0);
 
+		// Iterate over all elements on texture
+		// Compute (and add) lighting coming from "other" to "self"
 		for(int x=0; x<dim; x++) {
 			for(int y=0; y<dim; y++) {
 				vec2 other = vec2(x, y)/dim;
 
+				// Get world positions
 				vec3 pos_s = 2.0f*(texture(posTex, self).rgb - 0.5);
 				vec3 pos_o = 2.0f*(texture(posTex, other).rgb - 0.5);
 
+				// Get distance
 				vec3 self_to_other = pos_o - pos_s;
 				float r = length(self_to_other);
+				if(r<0.05) continue; // Avoid self-illumination
 
-				if(r<0.05) continue;
-
+				// Normalized direction vector
 				self_to_other = normalize(self_to_other);
 
+				// Get normal vectors
 				vec3 n_s = 2.0*(texture(nrmTex, self).rgb - 0.5f);
 				vec3 n_o = 2.0*(texture(nrmTex, other).rgb - 0.5f);
 
+				// Get cosines of mutual angular predicaments
 				float cos_s = dot(n_s, self_to_other);
 				float cos_o = dot(n_o, -self_to_other);
 
+				// If areas are looking away from each other -> skip
 				if(cos_s <= 0.0 || cos_o <= 0.0) continue;
 
+				// Compute view factor
 				float view_factor = cos_s * cos_o * (1.0f / (PI*r*r));
 
 				float ref = 0.9; // reflectivity
 
+				// Account for surface area of other
 				float fpa = (dim*dim)*texture(arfTex, other).x; // -> fragments per unit area on other
-				vec4 source = texture(ligTex, other);
-				source.rgb = source.rgb / fpa;
+				vec4 source = texture(ligTex, other);			// Pixel value at other
+				source.rgb = source.rgb / fpa;					// Light per surface area emitted by other
 
-				if(source.a<1.0) continue;
-
-				if(shadows && occluded(pos_s, pos_o)) continue;
+				// Additional guards
+				if(source.a<1.0 || shadows && occluded(pos_s, pos_o)) continue;
 
 				col += source.rgb * fsColor * ref * view_factor;
 			}
 		}
 
+		// Debugging for occlusion
 		//col = vec3(0.0);
 		//vec3 pos_s = 2.0f*(texture(posTex, self).rgb - 0.5);
 		//if(occluded(vec3(0,0,-2.5), pos_s)) col = vec3(1.0f);

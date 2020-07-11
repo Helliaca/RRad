@@ -154,7 +154,6 @@
     <ClCompile Include="ObjImporter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="core\assets\Data.h" />
     <ClInclude Include="core\assets\Shader.h" />
     <ClInclude Include="core\const.h" />
     <ClInclude Include="core\Engine.h" />
@@ -175,7 +174,7 @@
     <None Include="shaders\store_arf.fs" />
     <None Include="shaders\store_nrm.fs" />
     <None Include="shaders\store_vis.fs" />
-    <None Include="shaders\store_worldpos.fs" />
+    <None Include="shaders\store_pos.fs" />
     <None Include="simpelRad.fbx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
